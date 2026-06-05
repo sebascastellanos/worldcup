@@ -34,17 +34,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: authError?.message ?? 'Error al crear usuario' }, { status: 400 })
   }
 
-  await supabaseAdmin.from('users').insert({
-    id: authData.user.id,
-    email,
-    name,
-    role: 'participant',
-  })
-
-  await supabaseAdmin
-    .from('invite_tokens')
-    .update({ used_by: authData.user.id, used_at: new Date().toISOString() })
-    .eq('token', token)
+  await Promise.all([
+    supabaseAdmin.from('users').insert({
+      id: authData.user.id,
+      email,
+      name,
+      role: 'participant',
+    }),
+    supabaseAdmin
+      .from('invite_tokens')
+      .update({ used_by: authData.user.id, used_at: new Date().toISOString() })
+      .eq('token', token),
+  ])
 
   const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
   if (signInError) {
