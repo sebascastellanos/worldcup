@@ -41,7 +41,7 @@
 }
 
 :root {
-  --background: #eef2f7;
+  --background: #f0f7f0;
   --foreground: #0f172a;
   --card: #ffffff;
   --card-foreground: #0f172a;
@@ -51,21 +51,15 @@
   --primary-foreground: #ffffff;
   --secondary: #d97706;
   --secondary-foreground: #ffffff;
-  --muted: #e2e8f0;
+  --muted: #e2ede2;
   --muted-foreground: #64748b;
-  --accent: #e2e8f0;
+  --accent: #e2ede2;
   --accent-foreground: #0f172a;
   --destructive: #dc2626;
-  --border: #cbd5e1;
-  --input: #cbd5e1;
+  --border: #c8ddc8;
+  --input: #c8ddc8;
   --ring: #16a34a;
   --radius: 0.5rem;
-}
-
-@layer base {
-  body {
-    font-size: 15px;
-  }
 }
 
 @layer base {
@@ -73,6 +67,10 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    font-size: 15px;
+    background: linear-gradient(145deg, #e8f5e9 0%, #e3f2fd 50%, #fef3c7 100%);
+    background-attachment: fixed;
+    @apply text-foreground;
+    min-height: 100vh;
   }
 }

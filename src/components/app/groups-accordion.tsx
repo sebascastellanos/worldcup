@@ -53,43 +53,48 @@ function GroupCard({
     <button
       onClick={onClick}
       className={[
-        'group relative flex flex-col gap-3 p-4 rounded-xl border text-left transition-all duration-200',
-        'hover:shadow-md hover:-translate-y-0.5 active:translate-y-0',
+        'group relative flex flex-col gap-3 p-4 rounded-2xl border text-left transition-all duration-200',
+        'hover:shadow-lg hover:-translate-y-1 active:translate-y-0',
         isOpen
-          ? 'border-primary bg-primary/5 shadow-md shadow-primary/10'
-          : 'border-border bg-card hover:border-primary/40',
+          ? 'border-primary/40 shadow-lg shadow-primary/10 bg-white'
+          : 'border-white/80 bg-white/70 backdrop-blur-sm hover:bg-white hover:border-primary/30',
       ].join(' ')}
     >
-      <div className="flex items-center justify-between">
+      {/* Barra de color superior */}
+      <div className={[
+        'absolute top-0 left-0 right-0 h-1 rounded-t-2xl transition-all duration-300',
+        isOpen ? 'bg-gradient-to-r from-emerald-400 to-green-600' : 'bg-border group-hover:bg-gradient-to-r group-hover:from-emerald-300 group-hover:to-green-400',
+      ].join(' ')} />
+
+      <div className="flex items-center justify-between pt-1">
         <div className={[
-          'text-2xl font-black leading-none transition-colors',
-          isOpen ? 'text-primary' : 'text-foreground',
+          'text-4xl font-black leading-none transition-colors',
+          isOpen ? 'text-primary' : 'text-slate-700',
         ].join(' ')}>
           {label}
         </div>
         <div className={[
-          'w-2 h-2 rounded-full transition-all duration-300',
-          isOpen ? 'bg-primary scale-125' : 'bg-border group-hover:bg-primary/40',
-        ].join(' ')} />
+          'text-xs font-bold px-2 py-0.5 rounded-full transition-all',
+          isOpen ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground',
+        ].join(' ')}>
+          {progress}%
+        </div>
       </div>
 
-      <div className="space-y-0.5 min-h-[3rem]">
+      <div className="space-y-1 min-h-[4rem]">
         {teams.map(t => (
-          <div key={t} className="text-xs text-muted-foreground truncate leading-relaxed">{t}</div>
+          <div key={t} className="text-sm font-medium text-slate-600 truncate leading-snug">{t}</div>
         ))}
       </div>
 
       <div className="space-y-1">
-        <div className="flex justify-between text-xs">
-          <span className="text-muted-foreground">{predCount}/{matches.length}</span>
-          <span className={isOpen ? 'text-primary font-medium' : 'text-muted-foreground'}>{progress}%</span>
-        </div>
-        <div className="h-1 bg-border rounded-full overflow-hidden">
+        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
           <div
-            className="h-full rounded-full transition-all duration-500 bg-primary"
+            className="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-emerald-400 to-green-600"
             style={{ width: `${progress}%` }}
           />
         </div>
+        <div className="text-xs text-muted-foreground">{predCount}/{matches.length} predicciones</div>
       </div>
     </button>
   )
