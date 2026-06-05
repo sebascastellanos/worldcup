@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { ListChecks, Trophy, Settings, Shield, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
+import Image from 'next/image';
 
 const navItems = [
   { href: '/predictions', label: 'Predicciones', icon: ListChecks },
@@ -37,7 +38,16 @@ export function Sidebar({ isAdmin, userName, userPoints }: SidebarProps) {
     <aside className="w-[220px] shrink-0 flex flex-col h-screen sticky top-0 bg-[#0d1b2e] text-slate-100">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-white/10">
-        <div className="text-base font-black tracking-tight text-white">⚽ Mundial 2026</div>
+        <div className="mb-3">
+          <Image
+            src="/copa.png"
+            alt="Copa Mundial"
+            width={100}  // Ajusta el ancho en píxeles que quieras
+            height={100} // Ajusta el alto en píxeles que quieras
+            className="object-contain"
+          />
+        </div>
+        <div className="text-base font-black tracking-tight text-white"> Mundial 2026</div>
         <div className="text-xs text-slate-400 mt-0.5 font-medium">Polla Familiar</div>
       </div>
 
