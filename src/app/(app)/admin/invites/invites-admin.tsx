@@ -5,12 +5,14 @@ import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { InviteToken } from '@/lib/db/schema'
 
 export function InvitesAdmin({ initialTokens }: { initialTokens: InviteToken[] }) {
   const [tokens, setTokens] = useState(initialTokens)
   const [loading, setLoading] = useState(false)
+  const [deleting, setDeleting] = useState<string | null>(null)
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
 
@@ -35,6 +37,15 @@ export function InvitesAdmin({ initialTokens }: { initialTokens: InviteToken[] }
     toast.success('Link copiado')
   }
 
+  async function handleDelete(id: string) {
+    setDeleting(id)
+    const res = await fetch(`/api/admin/invites?id=${id}`, { method: 'DELETE' })
+    setDeleting(null)
+    if (!res.ok) { toast.error('Error al eliminar'); return }
+    setTokens(prev => prev.filter(t => t.id !== id))
+    toast.success('Invitación eliminada')
+  }
+
   return (
     <div className="space-y-4">
       <Button onClick={generateToken} disabled={loading}>
@@ -47,6 +58,7 @@ export function InvitesAdmin({ initialTokens }: { initialTokens: InviteToken[] }
             <TableHead>Token</TableHead>
             <TableHead>Expira</TableHead>
             <TableHead>Estado</TableHead>
+            <TableHead></TableHead>
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
@@ -72,6 +84,17 @@ export function InvitesAdmin({ initialTokens }: { initialTokens: InviteToken[] }
                     Copiar link
                   </Button>
                 )}
+              </TableCell>
+              <TableCell>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  onClick={() => handleDelete(t.id)}
+                  disabled={deleting === t.id}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
               </TableCell>
             </TableRow>
           ))}

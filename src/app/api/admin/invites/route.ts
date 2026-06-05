@@ -34,6 +34,19 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ token: data.token })
 }
 
+export async function DELETE(req: NextRequest) {
+  const { user, admin } = await requireAdmin()
+  if (!admin || !user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+
+  const tokenId = req.nextUrl.searchParams.get('id')
+  if (!tokenId) return NextResponse.json({ error: 'id requerido' }, { status: 400 })
+
+  const { error } = await supabaseAdmin.from('invite_tokens').delete().eq('id', tokenId).eq('created_by', user.id)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  return NextResponse.json({ ok: true })
+}
+
 export async function GET(req: NextRequest) {
   const { user, admin } = await requireAdmin()
   if (!admin || !user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
