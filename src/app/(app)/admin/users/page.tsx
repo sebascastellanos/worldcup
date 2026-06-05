@@ -2,9 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { mapUser } from '@/lib/db/mappers'
 import { redirect } from 'next/navigation'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { UsersAdmin } from './users-admin'
 
 export default async function AdminUsersPage() {
   const supabase = await createClient()
@@ -22,42 +20,5 @@ export default async function AdminUsersPage() {
 
   const allUsers = (rawUsers ?? []).map(mapUser)
 
-  return (
-    <div className="p-6 max-w-[800px] mx-auto">
-      <h1 className="text-xl font-bold mb-6">Participantes ({allUsers.length})</h1>
-      <Table>
-        <TableHeader>
-          <TableRow className="border-border">
-            <TableHead>Participante</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Rol</TableHead>
-            <TableHead className="text-right font-mono">Puntos</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {allUsers.map(u => (
-            <TableRow key={u.id} className="border-border">
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <Avatar className="w-7 h-7">
-                    <AvatarFallback className="text-xs bg-muted">{u.name.charAt(0).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm font-medium">{u.name}</span>
-                </div>
-              </TableCell>
-              <TableCell className="text-sm text-muted-foreground">{u.email}</TableCell>
-              <TableCell>
-                <Badge variant={u.role === 'admin' ? 'default' : 'outline'} className="text-xs">
-                  {u.role}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-right font-mono font-bold text-primary">
-                {u.totalPoints}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  )
+  return <UsersAdmin initialUsers={allUsers} currentUserId={authUser.id} />
 }
