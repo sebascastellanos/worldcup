@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { MatchCard } from './match-card'
 import { KnockoutTabs } from './knockout-bracket'
 import type { Match, Prediction } from '@/lib/db/schema'
@@ -60,7 +60,6 @@ function GroupCard({
           : 'border-border bg-card hover:border-primary/40',
       ].join(' ')}
     >
-      {/* Group letter */}
       <div className="flex items-center justify-between">
         <div className={[
           'text-2xl font-black leading-none transition-colors',
@@ -74,17 +73,15 @@ function GroupCard({
         ].join(' ')} />
       </div>
 
-      {/* Teams */}
       <div className="space-y-0.5 min-h-[3rem]">
         {teams.map(t => (
           <div key={t} className="text-xs text-muted-foreground truncate leading-relaxed">{t}</div>
         ))}
       </div>
 
-      {/* Progress */}
       <div className="space-y-1">
         <div className="flex justify-between text-xs">
-          <span className="text-muted-foreground">{predCount}/{matches.length} preds</span>
+          <span className="text-muted-foreground">{predCount}/{matches.length}</span>
           <span className={isOpen ? 'text-primary font-medium' : 'text-muted-foreground'}>{progress}%</span>
         </div>
         <div className="h-1 bg-border rounded-full overflow-hidden">
@@ -98,39 +95,11 @@ function GroupCard({
   )
 }
 
-function MatchesPanel({ matches, predMap, isOpen, onPredChange }: {
-  matches: Match[]
-  predMap: PredMap
-  isOpen: boolean
-  onPredChange: (matchId: string, pred: Prediction | null) => void
-}) {
-  return (
-    <div
-      className="grid transition-[grid-template-rows] duration-300 ease-in-out"
-      style={{ gridTemplateRows: isOpen ? '1fr' : '0fr' }}
-    >
-      <div className="overflow-hidden min-h-0">
-        <div className="pt-3 pb-1">
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
-            {matches.map(match => (
-              <MatchCard
-                key={match.id}
-                match={match}
-                prediction={predMap.get(match.id)}
-                onPredChange={onPredChange}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 export function GroupsAccordion({ matches, predMap: initialPredMap }: GroupsAccordionProps) {
   const [activeTab, setActiveTab] = useState<Tab>('groups')
   const [openStage, setOpenStage] = useState<string | null>(null)
   const [predMap, setPredMap] = useState<PredMap>(initialPredMap)
+  const matchesRef = useRef<HTMLDivElement>(null)
 
   function handlePredChange(matchId: string, pred: Prediction | null) {
     setPredMap(prev => {
@@ -150,39 +119,72 @@ export function GroupsAccordion({ matches, predMap: initialPredMap }: GroupsAcco
   const groupStages = ALL_STAGES.filter(s => GROUP_STAGES.includes(s) && grouped[s])
   const knockoutStages = ALL_STAGES.filter(s => KNOCKOUT_STAGES.includes(s) && grouped[s])
 
-  const hasKnockout = knockoutStages.length > 0
-  const currentStages = activeTab === 'groups' ? groupStages : knockoutStages
+  const totalGroupMatches = groupStages.reduce((sum, s) => sum + (grouped[s]?.length ?? 0), 0)
+  const totalGroupPreds = groupStages.reduce((sum, s) =>
+    sum + (grouped[s]?.filter(m => predMap.has(m.id)).length ?? 0), 0)
+  const overallProgress = totalGroupMatches > 0 ? Math.round((totalGroupPreds / totalGroupMatches) * 100) : 0
 
   function toggle(stage: string) {
-    setOpenStage(prev => (prev === stage ? null : stage))
+    const next = openStage === stage ? null : stage
+    setOpenStage(next)
+    if (next) {
+      setTimeout(() => {
+        matchesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 50)
+    }
   }
 
   return (
     <div className="space-y-5">
-      {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-muted rounded-lg w-fit">
-        <button
-          onClick={() => { setActiveTab('groups'); setOpenStage(null) }}
-          className={[
-            'px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200',
-            activeTab === 'groups'
-              ? 'bg-background text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground',
-          ].join(' ')}
-        >
-          Fase de Grupos
-        </button>
-        <button
-          onClick={() => { setActiveTab('knockout'); setOpenStage(null) }}
-          className={[
-            'px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200',
-            activeTab === 'knockout'
-              ? 'bg-background text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground',
-          ].join(' ')}
-        >
-          Eliminatorias
-        </button>
+      {/* Tabs + progress */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex gap-1 p-1 bg-muted rounded-lg w-fit">
+          <button
+            onClick={() => { setActiveTab('groups'); setOpenStage(null) }}
+            className={[
+              'px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200',
+              activeTab === 'groups'
+                ? 'bg-card text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground',
+            ].join(' ')}
+          >
+            Fase de Grupos
+          </button>
+          <button
+            onClick={() => { setActiveTab('knockout'); setOpenStage(null) }}
+            className={[
+              'px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200',
+              activeTab === 'knockout'
+                ? 'bg-card text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground',
+            ].join(' ')}
+          >
+            Eliminatorias
+          </button>
+        </div>
+
+        {activeTab === 'groups' && totalGroupMatches > 0 && (
+          <div className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-2 shrink-0">
+            <div className="text-right">
+              <div className="text-xs text-muted-foreground">Progreso total</div>
+              <div className="text-sm font-bold text-foreground">{totalGroupPreds}/{totalGroupMatches}</div>
+            </div>
+            <div className="relative w-10 h-10 shrink-0">
+              <svg className="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="currentColor" strokeWidth="3" className="text-border" />
+                <circle
+                  cx="18" cy="18" r="15.9" fill="none" stroke="currentColor" strokeWidth="3"
+                  strokeDasharray={`${overallProgress} 100`}
+                  strokeLinecap="round"
+                  className="text-primary transition-all duration-500"
+                />
+              </svg>
+              <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-primary">
+                {overallProgress}%
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Content */}
@@ -192,6 +194,7 @@ export function GroupsAccordion({ matches, predMap: initialPredMap }: GroupsAcco
         <p className="text-sm text-muted-foreground py-8 text-center">No hay partidos cargados.</p>
       ) : (
         <>
+          {/* Grid estático — no se mueve */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {groupStages.map(stage => (
               <GroupCard
@@ -205,15 +208,35 @@ export function GroupsAccordion({ matches, predMap: initialPredMap }: GroupsAcco
             ))}
           </div>
 
-          {groupStages.map(stage => (
-            <MatchesPanel
-              key={stage}
-              matches={grouped[stage]}
-              predMap={predMap}
-              isOpen={openStage === stage}
-              onPredChange={handlePredChange}
-            />
-          ))}
+          {/* Área de partidos — contenido fijo, solo cambia lo de adentro */}
+          <div ref={matchesRef} className="scroll-mt-4">
+            {openStage && grouped[openStage] ? (
+              <div className="bg-card border border-border rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-sm font-semibold text-foreground">
+                    Grupo {STAGE_LABELS[openStage]}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    · {grouped[openStage].filter(m => predMap.has(m.id)).length}/{grouped[openStage].length} predicciones
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                  {grouped[openStage].map(match => (
+                    <MatchCard
+                      key={match.id}
+                      match={match}
+                      prediction={predMap.get(match.id)}
+                      onPredChange={handlePredChange}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="border border-dashed border-border rounded-xl p-8 text-center text-sm text-muted-foreground">
+                Selecciona un grupo para ver los partidos
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>
