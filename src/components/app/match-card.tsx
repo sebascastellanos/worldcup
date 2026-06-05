@@ -47,21 +47,21 @@ export function MatchCard({ match, prediction, onPredChange }: MatchCardProps) {
         {/* Teams row */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex-1 flex items-center justify-end gap-2 min-w-0">
-            <span className="font-medium text-sm text-right truncate">{match.homeTeam}</span>
+            <span className="font-bold text-base text-right truncate">{match.homeTeam}</span>
             <TeamFlag flag={match.homeFlag} name={match.homeTeam} />
           </div>
 
           {hasResult ? (
-            <div className="font-mono font-bold text-lg text-foreground px-2 shrink-0">
+            <div className="font-mono font-black text-xl text-foreground px-3 shrink-0">
               {match.homeScore} – {match.awayScore}
             </div>
           ) : (
-            <div className="text-muted-foreground text-sm font-medium px-2 shrink-0">vs</div>
+            <div className="text-muted-foreground text-sm font-semibold px-3 shrink-0">vs</div>
           )}
 
           <div className="flex-1 flex items-center gap-2 min-w-0">
             <TeamFlag flag={match.awayFlag} name={match.awayTeam} />
-            <span className="font-medium text-sm truncate">{match.awayTeam}</span>
+            <span className="font-bold text-base truncate">{match.awayTeam}</span>
           </div>
         </div>
 
@@ -79,7 +79,7 @@ export function MatchCard({ match, prediction, onPredChange }: MatchCardProps) {
           </span>
         )}
         {!prediction && match.status === 'scheduled' && (
-          <span className="text-xs text-muted-foreground italic">Sin predicción</span>
+          <span className="text-xs text-muted-foreground italic">Sin predicción (1 pts)</span>
         )}
 
         {/* Prediction form */}

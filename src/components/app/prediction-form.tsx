@@ -15,10 +15,28 @@ interface PredictionFormProps {
   onPredChange?: (matchId: string, pred: Prediction | null) => void
 }
 
-const OUTCOME_BUTTONS: { type: Exclude<PredType, 'exact_score'>; label: string }[] = [
-  { type: 'home_win', label: 'Gana Local' },
-  { type: 'draw', label: 'Empate' },
-  { type: 'away_win', label: 'Gana Visitante' },
+const OUTCOME_BUTTONS: { type: Exclude<PredType, 'exact_score'>; label: string; gradient: string; activeBg: string; hoverBg: string }[] = [
+  {
+    type: 'home_win',
+    label: 'Gana Local',
+    gradient: 'bg-gradient-to-r from-emerald-500 to-green-600',
+    activeBg: 'bg-emerald-50 border-emerald-400 text-emerald-700',
+    hoverBg: 'hover:bg-emerald-50 hover:border-emerald-300',
+  },
+  {
+    type: 'draw',
+    label: 'Empate',
+    gradient: 'bg-gradient-to-r from-amber-400 to-orange-500',
+    activeBg: 'bg-amber-50 border-amber-400 text-amber-700',
+    hoverBg: 'hover:bg-amber-50 hover:border-amber-300',
+  },
+  {
+    type: 'away_win',
+    label: 'Gana Visit.',
+    gradient: 'bg-gradient-to-r from-blue-500 to-indigo-600',
+    activeBg: 'bg-blue-50 border-blue-400 text-blue-700',
+    hoverBg: 'hover:bg-blue-50 hover:border-blue-300',
+  },
 ]
 
 export function PredictionForm({ matchId, homeTeam, awayTeam, currentPred, locked, onPredChange }: PredictionFormProps) {
@@ -87,7 +105,7 @@ export function PredictionForm({ matchId, homeTeam, awayTeam, currentPred, locke
     <div className="space-y-2">
       {/* 1X2 buttons */}
       <div className="flex gap-1.5">
-        {OUTCOME_BUTTONS.map(({ type, label }) => {
+        {OUTCOME_BUTTONS.map(({ type, label, gradient, activeBg, hoverBg }) => {
           const isActive = selected === type && !exactMode
           const isHoveringActive = isActive && hoveredType === type
           return (
@@ -98,15 +116,15 @@ export function PredictionForm({ matchId, homeTeam, awayTeam, currentPred, locke
               onMouseLeave={() => setHoveredType(null)}
               disabled={pending}
               className={[
-                'flex-1 text-xs h-8 rounded-md border font-medium transition-all duration-150 disabled:opacity-50',
+                'flex-1 text-xs h-8 rounded-md border font-semibold transition-all duration-150 disabled:opacity-50',
                 isHoveringActive
-                  ? 'bg-red-500/10 border-red-500 text-red-500'
+                  ? 'bg-red-500/10 border-red-400 text-red-500'
                   : isActive
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'bg-transparent border-border text-foreground hover:bg-accent',
+                  ? `${gradient} text-white border-transparent shadow-sm`
+                  : `bg-transparent border-border text-muted-foreground ${hoverBg}`,
               ].join(' ')}
             >
-              {isHoveringActive ? 'Desmarcar' : label}
+              {isHoveringActive ? '✕ Desmarcar' : label}
             </button>
           )
         })}
@@ -141,7 +159,7 @@ export function PredictionForm({ matchId, homeTeam, awayTeam, currentPred, locke
           onClick={() => setExactMode(true)}
           className="text-xs text-muted-foreground hover:text-primary underline underline-offset-2 transition-colors"
         >
-          Predecir marcador exacto (+3 pts)
+          Acertar marcador exacto (3 pts)
         </button>
       ) : (
         <form onSubmit={handleExactSubmit} className="flex items-center gap-2">
