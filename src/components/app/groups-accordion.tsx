@@ -216,7 +216,7 @@ export function GroupsAccordion({ matches, predMap: initialPredMap }: GroupsAcco
           {/* Área de partidos — contenido fijo, solo cambia lo de adentro */}
           <div ref={matchesRef} className="scroll-mt-4">
             {openStage && grouped[openStage] ? (
-              <div className="bg-card border border-border rounded-xl p-4">
+              <div className="bg-white/40 backdrop-blur-sm border border-white/60 rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="text-sm font-semibold text-foreground">
                     Grupo {STAGE_LABELS[openStage]}
