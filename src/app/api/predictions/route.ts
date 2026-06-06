@@ -18,7 +18,10 @@ export async function POST(req: NextRequest) {
   const { data: matchData } = await supabaseAdmin.from('matches').select('*').eq('id', matchId).maybeSingle()
   if (!matchData) return NextResponse.json({ error: 'Partido no encontrado' }, { status: 404 })
   const match = mapMatch(matchData)
-  if (match.status !== 'scheduled') return NextResponse.json({ error: 'Predicciones cerradas' }, { status: 403 })
+  const cutoff = new Date(match.matchDate.getTime() - 5 * 60 * 1000)
+  if (match.status !== 'scheduled' || new Date() >= cutoff) {
+    return NextResponse.json({ error: 'Predicciones cerradas' }, { status: 403 })
+  }
 
   if (predType === 'exact_score') {
     if (predHome == null || predAway == null || predHome < 0 || predAway < 0) {
@@ -56,8 +59,11 @@ export async function DELETE(req: NextRequest) {
   const matchId = searchParams.get('matchId')
   if (!matchId) return NextResponse.json({ error: 'Falta matchId' }, { status: 400 })
 
-  const { data: matchData } = await supabaseAdmin.from('matches').select('status').eq('id', matchId).maybeSingle()
-  if (matchData?.status !== 'scheduled') return NextResponse.json({ error: 'Predicciones cerradas' }, { status: 403 })
+  const { data: matchData } = await supabaseAdmin.from('matches').select('status, match_date').eq('id', matchId).maybeSingle()
+  const deleteCutoff = matchData ? new Date(new Date(matchData.match_date).getTime() - 5 * 60 * 1000) : new Date()
+  if (matchData?.status !== 'scheduled' || new Date() >= deleteCutoff) {
+    return NextResponse.json({ error: 'Predicciones cerradas' }, { status: 403 })
+  }
 
   await supabaseAdmin
     .from('predictions')

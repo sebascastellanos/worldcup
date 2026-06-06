@@ -30,7 +30,8 @@ interface MatchCardProps {
 }
 
 export function MatchCard({ match, prediction, onPredChange }: MatchCardProps) {
-  const isLocked = match.status !== 'scheduled'
+  const cutoff = new Date(new Date(match.matchDate).getTime() - 5 * 60 * 1000)
+  const isLocked = match.status !== 'scheduled' || new Date() >= cutoff
   const hasResult = match.status === 'finished' && match.homeScore !== null
 
   return (
