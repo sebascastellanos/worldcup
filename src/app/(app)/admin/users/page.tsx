@@ -13,12 +13,25 @@ export default async function AdminUsersPage() {
   const dbUser = userData ? mapUser(userData) : null
   if (dbUser?.role !== 'admin') redirect('/dashboard')
 
-  const { data: rawUsers } = await supabaseAdmin
-    .from('users')
-    .select('*')
-    .order('total_points', { ascending: false })
+  const [{ data: rawUsers }, { count: totalMatches }, { data: predCounts }] = await Promise.all([
+    supabaseAdmin.from('users').select('*').order('total_points', { ascending: false }),
+    supabaseAdmin.from('matches').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('predictions').select('user_id'),
+  ])
 
   const allUsers = (rawUsers ?? []).map(mapUser)
 
-  return <UsersAdmin initialUsers={allUsers} currentUserId={authUser.id} />
+  const predCountMap = (predCounts ?? []).reduce<Record<string, number>>((acc, p) => {
+    acc[p.user_id] = (acc[p.user_id] ?? 0) + 1
+    return acc
+  }, {})
+
+  return (
+    <UsersAdmin
+      initialUsers={allUsers}
+      currentUserId={authUser.id}
+      totalMatches={totalMatches ?? 0}
+      predCountMap={predCountMap}
+    />
+  )
 }

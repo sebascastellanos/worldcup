@@ -9,7 +9,33 @@ import { Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { User } from '@/lib/db/schema'
 
-export function UsersAdmin({ initialUsers, currentUserId }: { initialUsers: User[], currentUserId: string }) {
+function ProgressCircle({ value, total }: { value: number; total: number }) {
+  const pct = total > 0 ? Math.round((value / total) * 100) : 0
+  const color = pct === 100 ? '#22c55e' : pct >= 50 ? '#f59e0b' : '#64748b'
+  return (
+    <div className="relative w-9 h-9 shrink-0">
+      <svg className="w-9 h-9 -rotate-90" viewBox="0 0 36 36">
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="currentColor" strokeWidth="3" className="text-border" />
+        <circle
+          cx="18" cy="18" r="15.9" fill="none" strokeWidth="3"
+          stroke={color}
+          strokeDasharray={`${pct} 100`}
+          strokeLinecap="round"
+        />
+      </svg>
+      <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold" style={{ color }}>
+        {pct}%
+      </span>
+    </div>
+  )
+}
+
+export function UsersAdmin({ initialUsers, currentUserId, totalMatches, predCountMap }: {
+  initialUsers: User[]
+  currentUserId: string
+  totalMatches: number
+  predCountMap: Record<string, number>
+}) {
   const [users, setUsers] = useState(initialUsers)
   const [deleting, setDeleting] = useState<string | null>(null)
 
@@ -36,6 +62,7 @@ export function UsersAdmin({ initialUsers, currentUserId }: { initialUsers: User
             <TableHead>Participante</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Rol</TableHead>
+            <TableHead className="text-center">Progreso</TableHead>
             <TableHead className="text-right font-mono">Puntos</TableHead>
             <TableHead></TableHead>
           </TableRow>
@@ -56,6 +83,12 @@ export function UsersAdmin({ initialUsers, currentUserId }: { initialUsers: User
                 <Badge variant={u.role === 'admin' ? 'default' : 'outline'} className="text-xs">
                   {u.role}
                 </Badge>
+              </TableCell>
+              <TableCell className="text-center">
+                <div className="flex flex-col items-center gap-0.5">
+                  <ProgressCircle value={predCountMap[u.id] ?? 0} total={totalMatches} />
+                  <span className="text-[10px] text-muted-foreground">{predCountMap[u.id] ?? 0}/{totalMatches}</span>
+                </div>
               </TableCell>
               <TableCell className="text-right font-mono font-bold text-primary">
                 {u.totalPoints}
