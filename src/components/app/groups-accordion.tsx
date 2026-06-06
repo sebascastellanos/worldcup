@@ -11,6 +11,7 @@ const GROUP_STAGES = [
   'GROUP_A', 'GROUP_B', 'GROUP_C', 'GROUP_D',
   'GROUP_E', 'GROUP_F', 'GROUP_G', 'GROUP_H',
   'GROUP_I', 'GROUP_J', 'GROUP_K', 'GROUP_L',
+  'GROUP_Z',
 ]
 
 const KNOCKOUT_STAGES = ['ROUND_OF_16', 'QUARTER_FINALS', 'SEMI_FINALS', 'THIRD_PLACE', 'FINAL']
@@ -18,7 +19,7 @@ const KNOCKOUT_STAGES = ['ROUND_OF_16', 'QUARTER_FINALS', 'SEMI_FINALS', 'THIRD_
 const STAGE_LABELS: Record<string, string> = {
   GROUP_A: 'A', GROUP_B: 'B', GROUP_C: 'C', GROUP_D: 'D',
   GROUP_E: 'E', GROUP_F: 'F', GROUP_G: 'G', GROUP_H: 'H',
-  GROUP_I: 'I', GROUP_J: 'J', GROUP_K: 'K', GROUP_L: 'L',
+  GROUP_I: 'I', GROUP_J: 'J', GROUP_K: 'K', GROUP_L: 'L', GROUP_Z: 'Z',
   ROUND_OF_16: 'Octavos', QUARTER_FINALS: 'Cuartos',
   SEMI_FINALS: 'Semis', THIRD_PLACE: '3er Lugar', FINAL: 'Final',
 }
