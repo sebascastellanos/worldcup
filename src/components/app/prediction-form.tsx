@@ -65,9 +65,10 @@ export function PredictionForm({ matchId, homeTeam, awayTeam, currentPred, locke
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       })
-      if (!res.ok) { toast.error('No se pudo guardar'); return }
+      if (!res.ok) { toast.error('No se pudo guardar 5 min antes de que comience el partido'); return }
       const data = await res.json()
       setSelected(type)
+      if (type === 'exact_score') setExactMode(false)
       onPredChange?.(matchId, data.prediction)
       toast.success('Predicción guardada')
     })
@@ -183,13 +184,6 @@ export function PredictionForm({ matchId, homeTeam, awayTeam, currentPred, locke
           <Button type="submit" size="sm" className="h-8 px-3 text-xs" disabled={pending}>
             {pending ? '...' : 'Guardar'}
           </Button>
-          <button
-            type="button"
-            onClick={() => setExactMode(false)}
-            className="text-xs text-muted-foreground hover:text-foreground"
-          >
-            ✕
-          </button>
         </form>
       )}
     </div>
