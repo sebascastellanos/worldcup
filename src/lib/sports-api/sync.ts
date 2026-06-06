@@ -57,8 +57,21 @@ export async function syncResults(source: 'cron' | 'admin' = 'cron'): Promise<{ 
   }
 
   try {
-    const data = await fetchFromSportsApi('/competitions/2000/matches')
-    const apiMatches: ApiMatch[] = data.matches ?? []
+    // 1 sola query para traer todo de la API y todo de la BD
+    const [apiData, { data: existingData }] = await Promise.all([
+      fetchFromSportsApi('/competitions/2000/matches'),
+      supabaseAdmin.from('matches').select('*'),
+    ])
+
+    const apiMatches: ApiMatch[] = apiData.matches ?? []
+
+    // Mapa en memoria: external_id → match. Cero queries adicionales para buscar.
+    const existingMap = new Map(
+      (existingData ?? []).map(r => [r.external_id, mapMatch(r)])
+    )
+
+    const toInsert: object[] = []
+    const toUpdate: { id: string; externalId: string; changes: object; lockPreds: boolean; recalculate: { homeScore: number; awayScore: number } | null }[] = []
 
     for (const apiMatch of apiMatches) {
       try {
@@ -67,56 +80,56 @@ export async function syncResults(source: 'cron' | 'admin' = 'cron'): Promise<{ 
         const homeScore = apiMatch.score.fullTime.home
         const awayScore = apiMatch.score.fullTime.away
         const stage = resolveStage(apiMatch)
+        const existing = existingMap.get(externalId)
 
-        const { data: existingData } = await supabaseAdmin
-          .from('matches')
-          .select('*')
-          .eq('external_id', externalId)
-          .maybeSingle()
-
-        if (existingData) {
-          const existing = mapMatch(existingData)
-          const statusChanged = existing.status !== status
-          const scoreChanged = existing.homeScore !== homeScore || existing.awayScore !== awayScore
-
-          if (statusChanged || scoreChanged) {
-            await supabaseAdmin
-              .from('matches')
-              .update({
-                status,
-                home_score: homeScore,
-                away_score: awayScore,
-                updated_at: new Date().toISOString(),
-              })
-              .eq('external_id', externalId)
-
-            if (status === 'live' || status === 'finished') {
-              await supabaseAdmin.from('predictions').update({ locked: true }).eq('match_id', existing.id)
-            }
-
-            if (status === 'finished' && homeScore !== null && awayScore !== null) {
-              await recalcularPuntosPartido(existing.id, { homeScore, awayScore })
-            }
-            synced++
-          }
-        } else {
-          await supabaseAdmin.from('matches').insert({
+        if (!existing) {
+          toInsert.push({
             external_id: externalId,
             home_team: apiMatch.homeTeam.name,
             away_team: apiMatch.awayTeam.name,
             home_flag: apiMatch.homeTeam.crest,
             away_flag: apiMatch.awayTeam.crest,
             match_date: new Date(apiMatch.utcDate).toISOString(),
-            stage,
-            status,
+            stage, status,
             home_score: homeScore,
             away_score: awayScore,
           })
-          synced++
+        } else {
+          const statusChanged = existing.status !== status
+          const scoreChanged = existing.homeScore !== homeScore || existing.awayScore !== awayScore
+          if (statusChanged || scoreChanged) {
+            toUpdate.push({
+              id: existing.id,
+              externalId,
+              changes: { status, home_score: homeScore, away_score: awayScore, updated_at: new Date().toISOString() },
+              lockPreds: status === 'live' || status === 'finished',
+              recalculate: status === 'finished' && homeScore !== null && awayScore !== null
+                ? { homeScore: homeScore!, awayScore: awayScore! }
+                : null,
+            })
+          }
         }
       } catch (err) {
         errors.push(`Partido ${apiMatch.id}: ${String(err)}`)
       }
+    }
+
+    // Bulk insert de partidos nuevos (1 query)
+    if (toInsert.length > 0) {
+      await supabaseAdmin.from('matches').insert(toInsert)
+      synced += toInsert.length
+    }
+
+    // Updates solo de los partidos que cambiaron (normalmente 0–3 por sync)
+    for (const { id, changes, lockPreds, recalculate } of toUpdate) {
+      await supabaseAdmin.from('matches').update(changes).eq('id', id)
+      if (lockPreds) {
+        await supabaseAdmin.from('predictions').update({ locked: true }).eq('match_id', id)
+      }
+      if (recalculate) {
+        await recalcularPuntosPartido(id, recalculate)
+      }
+      synced++
     }
   } catch (err) {
     errors.push(`Error general: ${String(err)}`)
