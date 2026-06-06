@@ -54,16 +54,16 @@ function GroupCard({
       onClick={onClick}
       className={[
         'group relative flex flex-col gap-3 p-4 rounded-2xl border text-left transition-all duration-200',
-        'hover:shadow-lg hover:-translate-y-1 active:translate-y-0',
+        'md:hover:shadow-lg md:hover:-translate-y-1 active:translate-y-0',
         isOpen
           ? 'border-primary/40 shadow-lg shadow-primary/10 bg-white'
-          : 'border-white/80 bg-white/70 backdrop-blur-sm hover:bg-white hover:border-primary/30',
+          : 'border-white/80 bg-white/70 backdrop-blur-sm md:hover:bg-white md:hover:border-primary/30',
       ].join(' ')}
     >
       {/* Barra de color superior */}
       <div className={[
         'absolute top-0 left-0 right-0 h-1 rounded-t-2xl transition-all duration-300',
-        isOpen ? 'bg-gradient-to-r from-emerald-400 to-green-600' : 'bg-border group-hover:bg-gradient-to-r group-hover:from-emerald-300 group-hover:to-green-400',
+        isOpen ? 'bg-gradient-to-r from-emerald-400 to-green-600' : 'bg-border md:group-hover:bg-gradient-to-r md:group-hover:from-emerald-300 md:group-hover:to-green-400',
       ].join(' ')} />
 
       <div className="flex items-center justify-between pt-1">

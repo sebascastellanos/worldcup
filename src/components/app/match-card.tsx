@@ -35,7 +35,7 @@ export function MatchCard({ match, prediction, onPredChange }: MatchCardProps) {
   const hasResult = match.status === 'finished' && match.homeScore !== null
 
   return (
-    <Card className="bg-white/75 backdrop-blur-sm border-white/60 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <Card className="bg-white/75 backdrop-blur-sm border-white/60 shadow-sm md:hover:shadow-md transition-shadow duration-200">
       <CardContent className="p-4 space-y-3">
         {/* Header: date */}
         <div className="flex items-center justify-between text-xs text-muted-foreground">
