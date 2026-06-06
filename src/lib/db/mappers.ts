@@ -1,4 +1,4 @@
-import type { Match, User, Prediction, InviteToken } from './schema'
+import type { Match, User, Prediction, InviteToken, SyncLog } from './schema'
 
 export function mapMatch(r: Record<string, any>): Match {
   return {
@@ -41,6 +41,17 @@ export function mapPrediction(r: Record<string, any>): Prediction {
     locked: r.locked,
     createdAt: new Date(r.created_at),
     updatedAt: new Date(r.updated_at),
+  }
+}
+
+export function mapSyncLog(r: Record<string, any>): SyncLog {
+  return {
+    id: r.id,
+    synced: r.synced,
+    locked: r.locked,
+    errors: r.errors ?? [],
+    source: r.source,
+    ranAt: new Date(r.ran_at),
   }
 }
 

@@ -14,6 +14,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
-  const result = await syncResults()
+  const result = await syncResults('admin')
   return NextResponse.json(result)
 }

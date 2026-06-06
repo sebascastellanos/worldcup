@@ -55,9 +55,19 @@ export const inviteTokens = pgTable('invite_tokens', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+export const syncLogs = pgTable('sync_logs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  synced: integer('synced').default(0).notNull(),
+  locked: integer('locked').default(0).notNull(),
+  errors: text('errors').array().default([]).notNull(),
+  source: text('source').default('cron').notNull(),
+  ranAt: timestamp('ran_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
 export type User = typeof users.$inferSelect
 export type Match = typeof matches.$inferSelect
 export type Prediction = typeof predictions.$inferSelect
 export type InviteToken = typeof inviteTokens.$inferSelect
+export type SyncLog = typeof syncLogs.$inferSelect
 export type PredType = typeof predTypeEnum.enumValues[number]
 export type MatchStatus = typeof matchStatusEnum.enumValues[number]

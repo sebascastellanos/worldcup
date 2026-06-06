@@ -28,9 +28,33 @@ function resolveStage(apiMatch: ApiMatch): string {
   return apiMatch.stage
 }
 
-export async function syncResults(): Promise<{ synced: number; errors: string[] }> {
+export async function syncResults(source: 'cron' | 'admin' = 'cron'): Promise<{ synced: number; locked: number; errors: string[] }> {
   const errors: string[] = []
   let synced = 0
+  let locked = 0
+
+  // Lock predictions for matches starting within the next 5 min — time-based, no API needed.
+  // This guarantees bets are closed even if the API hasn't flipped the match to 'live' yet.
+  try {
+    const lockCutoff = new Date(Date.now() + 5 * 60 * 1000).toISOString()
+    const { data: upcoming } = await supabaseAdmin
+      .from('matches')
+      .select('id')
+      .eq('status', 'scheduled')
+      .lte('match_date', lockCutoff)
+
+    for (const match of (upcoming ?? [])) {
+      const { data: updated } = await supabaseAdmin
+        .from('predictions')
+        .update({ locked: true })
+        .eq('match_id', match.id)
+        .eq('locked', false)
+        .select('id')
+      locked += (updated ?? []).length
+    }
+  } catch (err) {
+    errors.push(`Error cerrando pollas: ${String(err)}`)
+  }
 
   try {
     const data = await fetchFromSportsApi('/competitions/2000/matches')
@@ -98,5 +122,7 @@ export async function syncResults(): Promise<{ synced: number; errors: string[] 
     errors.push(`Error general: ${String(err)}`)
   }
 
-  return { synced, errors }
+  await supabaseAdmin.from('sync_logs').insert({ synced, locked, errors, source })
+
+  return { synced, locked, errors }
 }
