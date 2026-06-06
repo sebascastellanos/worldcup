@@ -67,20 +67,22 @@ export function MatchCard({ match, prediction, onPredChange }: MatchCardProps) {
         </div>
 
         {/* Prediction info */}
-        {prediction && match.status === 'finished' && (
-          <ScoreBadge points={prediction.pointsEarned} status="finished" />
-        )}
-        {prediction && match.status === 'scheduled' && (
-          <span className="text-xs text-muted-foreground">
-            {prediction.predType === 'exact_score'
-              ? `Marcador: ${prediction.predHome}–${prediction.predAway}`
-              : prediction.predType === 'home_win' ? '→ Gana local'
-              : prediction.predType === 'away_win' ? '→ Gana visitante'
-              : '→ Empate'}
-          </span>
+        {prediction && (
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs text-muted-foreground">
+              {prediction.predType === 'exact_score'
+                ? `Apostaste: ${prediction.predHome}–${prediction.predAway}`
+                : prediction.predType === 'home_win' ? `Apostaste: gana ${match.homeTeam}`
+                : prediction.predType === 'away_win' ? `Apostaste: gana ${match.awayTeam}`
+                : 'Apostaste: empate'}
+            </span>
+            {match.status === 'finished' && (
+              <ScoreBadge points={prediction.pointsEarned} status="finished" />
+            )}
+          </div>
         )}
         {!prediction && match.status === 'scheduled' && (
-          <span className="text-xs text-muted-foreground italic">Sin predicción (1 pts)</span>
+          <span className="text-xs text-muted-foreground italic">Sin predicción</span>
         )}
 
         {/* Prediction form */}
