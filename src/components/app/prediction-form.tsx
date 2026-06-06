@@ -86,6 +86,7 @@ export function PredictionForm({ matchId, homeTeam, awayTeam, currentPred, locke
   }
 
   function handleOutcomeClick(type: Exclude<PredType, 'exact_score'>) {
+    setHoveredType(null)
     if (selected === type && !exactMode) { unselect(); return }
     setExactMode(false)
     save(type)
