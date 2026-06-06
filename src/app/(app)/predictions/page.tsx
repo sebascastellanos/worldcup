@@ -25,7 +25,7 @@ export default async function PredictionsPage() {
   const predMap = new Map(userPredictions.map(p => [p.matchId, p]))
 
   return (
-    <div className="p-6 max-w-[1400px] mx-auto space-y-4">
+    <div className="p-3 md:p-6 max-w-[1400px] mx-auto space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">Predicciones</h1>
         {allMatches.length > 0 && (

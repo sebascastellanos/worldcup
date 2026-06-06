@@ -35,7 +35,8 @@ export function Sidebar({ isAdmin, userName, userPoints }: SidebarProps) {
   }
 
   return (
-    <aside className="w-[220px] shrink-0 flex flex-col h-screen sticky top-0 bg-[#0d1b2e] text-slate-100">
+    <>
+    <aside className="hidden md:flex w-[220px] shrink-0 flex-col h-screen sticky top-0 bg-[#0d1b2e] text-slate-100">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-white/10">
         <div className="mb-3">
@@ -108,5 +109,42 @@ export function Sidebar({ isAdmin, userName, userPoints }: SidebarProps) {
         </button>
       </div>
     </aside>
+
+    {/* Mobile bottom nav */}
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex md:hidden bg-[#0d1b2e] border-t border-white/10">
+      {navItems.map(({ href, label, icon: Icon }) => (
+        <Link
+          key={href}
+          href={href}
+          className={cn(
+            'flex-1 flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-colors',
+            pathname === href ? 'text-green-400' : 'text-slate-400'
+          )}
+        >
+          <Icon className="w-5 h-5" />
+          {label}
+        </Link>
+      ))}
+      {isAdmin && (
+        <Link
+          href="/admin/matches"
+          className={cn(
+            'flex-1 flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-colors',
+            pathname.startsWith('/admin') ? 'text-green-400' : 'text-slate-400'
+          )}
+        >
+          <Settings className="w-5 h-5" />
+          Admin
+        </Link>
+      )}
+      <button
+        onClick={handleLogout}
+        className="flex-1 flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium text-slate-400"
+      >
+        <LogOut className="w-5 h-5" />
+        Salir
+      </button>
+    </nav>
+    </>
   )
 }

@@ -11,7 +11,7 @@ export default async function LeaderboardPage() {
   const allUsers = (data ?? []).map(mapUser)
 
   return (
-    <div className="p-6 max-w-[900px] mx-auto">
+    <div className="p-3 md:p-6 max-w-[900px] mx-auto">
       <h1 className="text-xl font-bold mb-6">Tabla de posiciones</h1>
       <LeaderboardTable initialUsers={allUsers} />
     </div>
