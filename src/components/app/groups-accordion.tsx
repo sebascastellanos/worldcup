@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { ChevronUp } from 'lucide-react'
 import { MatchCard } from './match-card'
 import { KnockoutTabs } from './knockout-bracket'
 import type { Match, Prediction } from '@/lib/db/schema'
@@ -104,6 +105,7 @@ export function GroupsAccordion({ matches, predMap: initialPredMap }: GroupsAcco
   const [activeTab, setActiveTab] = useState<Tab>('groups')
   const [openStage, setOpenStage] = useState<string | null>(null)
   const [predMap, setPredMap] = useState<PredMap>(initialPredMap)
+  const groupsRef = useRef<HTMLDivElement>(null)
   const matchesRef = useRef<HTMLDivElement>(null)
 
   function handlePredChange(matchId: string, pred: Prediction | null) {
@@ -200,7 +202,7 @@ export function GroupsAccordion({ matches, predMap: initialPredMap }: GroupsAcco
       ) : (
         <>
           {/* Grid estático — no se mueve */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          <div ref={groupsRef} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {groupStages.map(stage => (
               <GroupCard
                 key={stage}
@@ -242,6 +244,14 @@ export function GroupsAccordion({ matches, predMap: initialPredMap }: GroupsAcco
               </div>
             )}
           </div>
+          {openStage && (
+            <button
+              onClick={() => groupsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-50 w-11 h-11 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center transition-all duration-200 active:scale-95 md:hover:bg-primary/90"
+            >
+              <ChevronUp className="w-5 h-5" />
+            </button>
+          )}
         </>
       )}
     </div>

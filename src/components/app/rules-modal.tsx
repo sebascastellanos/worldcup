@@ -63,7 +63,7 @@ export function RulesModal() {
                   <div className="font-medium text-foreground">Marcador exacto</div>
                   <div className="text-muted-foreground text-xs mt-0.5">
                     Marcador exacto correcto → <span className="font-bold text-foreground">3 puntos</span><br />
-                    Resultado correcto pero marcador errado → <span className="font-bold text-foreground">1 punto</span>
+                    
                   </div>
                 </div>
               </div>
@@ -81,7 +81,7 @@ export function RulesModal() {
             <div className="space-y-1.5">
               <div className="flex items-center justify-between p-2.5 rounded-lg bg-muted/50">
                 <span className="text-muted-foreground">Entrada</span>
-                <span className="font-bold text-foreground">$50.000</span>
+                <span className="font-bold text-foreground">$50.000 unico pago</span>
               </div>
               <div className="flex items-center justify-between p-2.5 rounded-lg bg-yellow-50 border border-yellow-200">
                 <span className="font-medium">🥇 1er lugar</span>
