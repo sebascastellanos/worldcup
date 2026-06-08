@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { Info } from 'lucide-react'
 
 const STORAGE_KEY = 'polla_rules_seen_v1'
 
@@ -21,6 +22,15 @@ export function RulesModal() {
   }
 
   return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        title="Ver reglas"
+      >
+        <Info className="w-4 h-4" />
+      </button>
+
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md max-h-[85vh] flex flex-col">
         <DialogHeader>
@@ -99,5 +109,6 @@ export function RulesModal() {
         </Button>
       </DialogContent>
     </Dialog>
+    </>
   )
 }

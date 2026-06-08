@@ -27,9 +27,11 @@ export default async function PredictionsPage() {
 
   return (
     <div className="p-3 md:p-6 max-w-[1400px] mx-auto space-y-4">
-      <RulesModal />
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Predicciones</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-xl font-bold">Predicciones</h1>
+          <RulesModal />
+        </div>
         {allMatches.length > 0 && (
           <span className="text-sm text-muted-foreground">
             {predMap.size} de {allMatches.length} predicciones hechas
