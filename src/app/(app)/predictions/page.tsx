@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { mapMatch, mapPrediction } from '@/lib/db/mappers'
 import { GroupsAccordion } from '@/components/app/groups-accordion'
+import { RulesModal } from '@/components/app/rules-modal'
 
 export default async function PredictionsPage() {
   const supabase = await createClient()
@@ -26,6 +27,7 @@ export default async function PredictionsPage() {
 
   return (
     <div className="p-3 md:p-6 max-w-[1400px] mx-auto space-y-4">
+      <RulesModal />
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">Predicciones</h1>
         {allMatches.length > 0 && (
