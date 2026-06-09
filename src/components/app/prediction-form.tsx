@@ -42,7 +42,7 @@ const OUTCOME_BUTTONS: { type: Exclude<PredType, 'exact_score'>; label: string; 
 
 export function PredictionForm({ matchId, homeTeam, awayTeam, currentPred, locked, onPredChange }: PredictionFormProps) {
   const [selected, setSelected] = useState<PredType | null>(currentPred?.predType ?? null)
-  const [exactMode, setExactMode] = useState(currentPred?.predType === 'exact_score')
+  const [exactMode, setExactMode] = useState(false)
   const [predHome, setPredHome] = useState(currentPred?.predHome?.toString() ?? '')
   const [predAway, setPredAway] = useState(currentPred?.predAway?.toString() ?? '')
   const [pending, startTransition] = useTransition()
