@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
@@ -135,20 +136,17 @@ export function PredictionForm({ matchId, homeTeam, awayTeam, currentPred, locke
       {/* Exact score section */}
       {selected === 'exact_score' && !exactMode ? (
         <div className="flex items-center gap-2">
-          <button
-            onMouseEnter={() => setHoveredType('exact_score')}
-            onMouseLeave={() => setHoveredType(null)}
-            onClick={unselect}
-            disabled={pending}
-            className={[
-              'text-xs h-8 px-3 rounded-md border font-medium transition-all duration-150 disabled:opacity-50',
-              hoveredType === 'exact_score'
-                ? 'bg-red-500/10 border-red-500 text-red-500'
-                : 'bg-primary/10 border-primary text-primary',
-            ].join(' ')}
-          >
-            {hoveredType === 'exact_score' ? 'Desmarcar' : `Marcador: ${predHome}–${predAway}`}
-          </button>
+          <div className="flex items-center gap-1.5 text-xs h-8 px-3 rounded-md border bg-primary/10 border-primary text-primary font-medium">
+            <span>Marcador: {predHome}–{predAway}</span>
+            <button
+              onClick={unselect}
+              disabled={pending}
+              className="ml-0.5 text-primary/60 hover:text-red-500 transition-colors disabled:opacity-50"
+              title="Quitar predicción"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </div>
           <button
             onClick={() => setExactMode(true)}
             className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
