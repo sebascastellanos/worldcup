@@ -8,8 +8,7 @@ export function calcularPuntos(pred: Pred, result: Result): number {
 
   if (pred.predType === 'exact_score') {
     if (pred.predHome === result.homeScore && pred.predAway === result.awayScore) return 3
-    const predOutcome = Math.sign((pred.predHome ?? 0) - (pred.predAway ?? 0))
-    return predOutcome === realOutcome ? 1 : 0
+    return 0
   }
 
   const outcomeMap: Record<Exclude<PredType, 'exact_score'>, number> = {
