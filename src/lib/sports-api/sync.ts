@@ -95,16 +95,20 @@ export async function syncResults(source: 'cron' | 'admin' = 'cron'): Promise<{ 
             away_score: awayScore,
           })
         } else {
+          // Preserve existing scores if API returns null — never overwrite a real result with null
+          const effectiveHome = homeScore ?? existing.homeScore
+          const effectiveAway = awayScore ?? existing.awayScore
+
           const statusChanged = existing.status !== status
-          const scoreChanged = existing.homeScore !== homeScore || existing.awayScore !== awayScore
+          const scoreChanged = existing.homeScore !== effectiveHome || existing.awayScore !== effectiveAway
           if (statusChanged || scoreChanged) {
             toUpdate.push({
               id: existing.id,
               externalId,
-              changes: { status, home_score: homeScore, away_score: awayScore, updated_at: new Date().toISOString() },
+              changes: { status, home_score: effectiveHome, away_score: effectiveAway, updated_at: new Date().toISOString() },
               lockPreds: status === 'live' || status === 'finished',
-              recalculate: status === 'finished' && homeScore !== null && awayScore !== null
-                ? { homeScore: homeScore!, awayScore: awayScore! }
+              recalculate: status === 'finished' && effectiveHome !== null && effectiveAway !== null
+                ? { homeScore: effectiveHome!, awayScore: effectiveAway! }
                 : null,
             })
           }
