@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import { mapMatch, mapPrediction } from '@/lib/db/mappers'
 import { GroupsAccordion } from '@/components/app/groups-accordion'
 import { RulesModal } from '@/components/app/rules-modal'
+import { ConfettiManager } from '@/components/app/confetti-manager'
 
 export default async function PredictionsPage() {
   const supabase = await createClient()
@@ -38,6 +39,13 @@ export default async function PredictionsPage() {
           </span>
         )}
       </div>
+
+      {authUser && (
+        <ConfettiManager
+          userId={authUser.id}
+          predictions={userPredictions.map(p => ({ id: p.id, pointsEarned: p.pointsEarned }))}
+        />
+      )}
 
       {allMatches.length === 0 ? (
         <p className="text-muted-foreground">Aún no hay partidos cargados.</p>
