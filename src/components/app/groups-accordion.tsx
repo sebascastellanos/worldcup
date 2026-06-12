@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { ChevronUp } from 'lucide-react'
 import { MatchCard } from './match-card'
 import { KnockoutTabs } from './knockout-bracket'
+import { FechasView } from './fechas-view'
 import type { Match, Prediction } from '@/lib/db/schema'
 
 type PredMap = Map<string, Prediction>
@@ -26,7 +27,7 @@ const STAGE_LABELS: Record<string, string> = {
 
 const ALL_STAGES = [...GROUP_STAGES, ...KNOCKOUT_STAGES]
 
-type Tab = 'groups' | 'knockout'
+type Tab = 'groups' | 'knockout' | 'dates'
 
 interface GroupsAccordionProps {
   matches: Match[]
@@ -105,6 +106,7 @@ export function GroupsAccordion({ matches, predMap: initialPredMap }: GroupsAcco
   const [activeTab, setActiveTab] = useState<Tab>('groups')
   const [openStage, setOpenStage] = useState<string | null>(null)
   const [predMap, setPredMap] = useState<PredMap>(initialPredMap)
+  const [highlightedMatchId, setHighlightedMatchId] = useState<string | null>(null)
   const groupsRef = useRef<HTMLDivElement>(null)
   const matchesRef = useRef<HTMLDivElement>(null)
 
@@ -131,6 +133,18 @@ export function GroupsAccordion({ matches, predMap: initialPredMap }: GroupsAcco
     sum + (grouped[s]?.filter(m => predMap.has(m.id)).length ?? 0), 0)
   const overallProgress = totalGroupMatches > 0 ? Math.round((totalGroupPreds / totalGroupMatches) * 100) : 0
 
+  function handleNavigateToMatch(matchId: string, stage: string) {
+    const isKnockout = KNOCKOUT_STAGES.includes(stage)
+    setActiveTab(isKnockout ? 'knockout' : 'groups')
+    setOpenStage(stage)
+    setHighlightedMatchId(matchId)
+    setTimeout(() => {
+      const el = document.getElementById(`match-${matchId}`)
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 150)
+    setTimeout(() => setHighlightedMatchId(null), 3000)
+  }
+
   function toggle(stage: string) {
     const next = openStage === stage ? null : stage
     setOpenStage(next)
@@ -141,34 +155,56 @@ export function GroupsAccordion({ matches, predMap: initialPredMap }: GroupsAcco
     }
   }
 
+  const fechasBtn = (extraClass = '') => (
+    <button
+      onClick={() => { setActiveTab('dates'); setOpenStage(null) }}
+      className={[
+        'px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200',
+        activeTab === 'dates'
+          ? 'bg-card text-foreground shadow-sm'
+          : 'text-muted-foreground hover:text-foreground',
+        extraClass,
+      ].join(' ')}
+    >
+      Fechas
+    </button>
+  )
+
   return (
     <div className="space-y-5">
       {/* Tabs + progress */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex gap-1 p-1 bg-muted rounded-lg w-fit">
-          <button
-            onClick={() => { setActiveTab('groups'); setOpenStage(null) }}
-            className={[
-              'px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200',
-              activeTab === 'groups'
-                ? 'bg-card text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground',
-            ].join(' ')}
-          >
-            Fase de Grupos
-          </button>
-          <button
-            onClick={() => { setActiveTab('knockout'); setOpenStage(null) }}
-            className={[
-              'px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200',
-              activeTab === 'knockout'
-                ? 'bg-card text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground',
-            ].join(' ')}
-          >
-            Eliminatorias
-          </button>
-        </div>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex gap-1 p-1 bg-muted rounded-lg w-fit">
+            <button
+              onClick={() => { setActiveTab('groups'); setOpenStage(null) }}
+              className={[
+                'px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200',
+                activeTab === 'groups'
+                  ? 'bg-card text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground',
+              ].join(' ')}
+            >
+              Grupos
+            </button>
+            <button
+              onClick={() => { setActiveTab('knockout'); setOpenStage(null) }}
+              className={[
+                'px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200',
+                activeTab === 'knockout'
+                  ? 'bg-card text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground',
+              ].join(' ')}
+            >
+              Eliminatorias
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Fechas — solo desktop */}
+            <div className="hidden md:block p-1 bg-muted rounded-lg">
+              {fechasBtn()}
+            </div>
 
         {activeTab === 'groups' && totalGroupMatches > 0 && (
           <div className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-2 shrink-0">
@@ -192,10 +228,19 @@ export function GroupsAccordion({ matches, predMap: initialPredMap }: GroupsAcco
             </div>
           </div>
         )}
+          </div>
+        </div>
+
+        {/* Fechas — solo móvil, debajo */}
+        <div className="md:hidden p-1 bg-muted rounded-lg w-fit">
+          {fechasBtn()}
+        </div>
       </div>
 
       {/* Content */}
-      {activeTab === 'knockout' ? (
+      {activeTab === 'dates' ? (
+        <FechasView matches={matches} predMap={predMap} onNavigate={handleNavigateToMatch} />
+      ) : activeTab === 'knockout' ? (
         <KnockoutTabs grouped={grouped} predMap={predMap} onPredChange={handlePredChange} />
       ) : groupStages.length === 0 ? (
         <p className="text-sm text-muted-foreground py-8 text-center">No hay partidos cargados.</p>
@@ -234,6 +279,7 @@ export function GroupsAccordion({ matches, predMap: initialPredMap }: GroupsAcco
                       match={match}
                       prediction={predMap.get(match.id)}
                       onPredChange={handlePredChange}
+                      highlighted={highlightedMatchId === match.id}
                     />
                   ))}
                 </div>

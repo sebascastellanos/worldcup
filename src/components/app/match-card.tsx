@@ -27,15 +27,24 @@ interface MatchCardProps {
   match: Match
   prediction?: Prediction | null
   onPredChange?: (matchId: string, pred: Prediction | null) => void
+  highlighted?: boolean
 }
 
-export function MatchCard({ match, prediction, onPredChange }: MatchCardProps) {
+export function MatchCard({ match, prediction, onPredChange, highlighted }: MatchCardProps) {
   const cutoff = new Date(new Date(match.matchDate).getTime() - 5 * 60 * 1000)
   const isLocked = match.status !== 'scheduled' || new Date() >= cutoff
   const hasResult = match.status === 'finished' && match.homeScore !== null
 
   return (
-    <Card className="bg-white/75 backdrop-blur-sm border-white/60 shadow-sm md:hover:shadow-md transition-shadow duration-200">
+    <Card
+      id={`match-${match.id}`}
+      className={[
+        'bg-white/75 backdrop-blur-sm shadow-sm md:hover:shadow-md transition-all duration-500',
+        highlighted
+          ? 'border-primary shadow-lg shadow-primary/20 ring-2 ring-primary/40'
+          : 'border-white/60',
+      ].join(' ')}
+    >
       <CardContent className="p-4 space-y-3">
         {/* Header: date */}
         <div className="flex items-center justify-between text-xs text-muted-foreground">
