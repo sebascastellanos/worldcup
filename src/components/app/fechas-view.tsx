@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import type { Match, Prediction } from '@/lib/db/schema'
@@ -37,12 +38,27 @@ export function FechasView({ matches, predMap, onNavigate }: FechasViewProps) {
     return acc
   }, {})
 
+  const dateKeys = Object.keys(byDate)
+  const todayKey = format(new Date(), 'yyyy-MM-dd')
+
+  // Scroll to today or the nearest upcoming date on mount
+  useEffect(() => {
+    const targetKey = dateKeys.find(k => k >= todayKey) ?? dateKeys[dateKeys.length - 1]
+    if (!targetKey) return
+    setTimeout(() => {
+      document.getElementById(`fecha-${targetKey}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 50)
+  }, [])
+
   return (
     <div className="space-y-6">
       {Object.entries(byDate).map(([dateKey, dayMatches]) => (
-        <div key={dateKey}>
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 px-1">
-            {format(new Date(dateKey + 'T12:00:00'), "EEEE d 'de' MMMM", { locale: es })}
+        <div key={dateKey} id={`fecha-${dateKey}`} className="scroll-mt-4">
+          <div className={[
+            'text-xs font-semibold uppercase tracking-wide mb-2 px-1',
+            dateKey === todayKey ? 'text-primary' : 'text-muted-foreground',
+          ].join(' ')}>
+            {dateKey === todayKey ? '► ' : ''}{format(new Date(dateKey + 'T12:00:00'), "EEEE d 'de' MMMM", { locale: es })}
           </div>
           <div className="space-y-1.5">
             {dayMatches.map(match => {
