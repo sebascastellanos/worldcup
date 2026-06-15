@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -47,6 +47,7 @@ function PointsBadge({ points, status }: { points: number | null; status: string
 function UserPredictionsModal({ user, open, onClose }: { user: User | null; open: boolean; onClose: () => void }) {
   const [preds, setPreds] = useState<PredWithMatch[]>([])
   const [loading, setLoading] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!open || !user) return
@@ -56,6 +57,19 @@ function UserPredictionsModal({ user, open, onClose }: { user: User | null; open
       .then(data => setPreds(data.predictions ?? []))
       .finally(() => setLoading(false))
   }, [open, user])
+
+  // Scroll to today or nearest upcoming match after preds load
+  useEffect(() => {
+    if (loading || preds.length === 0 || !scrollRef.current) return
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const target = preds.find(p => p.match && new Date(p.match.matchDate) >= today)
+    if (!target) return
+    setTimeout(() => {
+      scrollRef.current?.querySelector(`[data-pred-id="${target.id}"]`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 50)
+  }, [loading, preds])
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -72,7 +86,7 @@ function UserPredictionsModal({ user, open, onClose }: { user: User | null; open
           </DialogTitle>
         </DialogHeader>
 
-        <div className="overflow-y-auto flex-1 -mx-6 px-6">
+        <div ref={scrollRef} className="overflow-y-auto flex-1 -mx-6 px-6">
           {loading ? (
             <p className="text-sm text-muted-foreground py-8 text-center">Cargando...</p>
           ) : preds.length === 0 ? (
@@ -80,7 +94,7 @@ function UserPredictionsModal({ user, open, onClose }: { user: User | null; open
           ) : (
             <div className="space-y-2 py-2">
               {preds.map(pred => (
-                <div key={pred.id} className="flex items-center justify-between gap-3 py-2.5 border-b border-border last:border-0">
+                <div key={pred.id} data-pred-id={pred.id} className="flex items-center justify-between gap-3 py-2.5 border-b border-border last:border-0">
                   <div className="min-w-0">
                     <div className="text-sm font-medium truncate">
                       {pred.match?.homeTeam} vs {pred.match?.awayTeam}
