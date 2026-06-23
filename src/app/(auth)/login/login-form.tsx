@@ -13,6 +13,27 @@ export function LoginForm({ next }: { next?: string }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
+  const [resetLoading, setResetLoading] = useState(false)
+
+  async function handleForgotPassword() {
+    if (!email) {
+      toast.error('Ingresa tu email primero')
+      return
+    }
+    setResetLoading(true)
+    const supabase = createClient()
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/confirm?type=recovery`,
+    })
+    setResetLoading(false)
+    if (error) {
+      toast.error('No se pudo enviar el correo')
+      return
+    }
+    setResetSent(true)
+    toast.success('Revisa tu correo')
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -58,6 +79,21 @@ export function LoginForm({ next }: { next?: string }) {
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Entrando...' : 'Entrar'}
           </Button>
+
+          {resetSent ? (
+            <p className="text-xs text-center text-muted-foreground">
+              Correo enviado a <span className="font-medium">{email}</span>. Revisa tu bandeja.
+            </p>
+          ) : (
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={resetLoading}
+              className="w-full text-xs text-center text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+            >
+              {resetLoading ? 'Enviando...' : '¿Olvidaste tu contraseña?'}
+            </button>
+          )}
         </form>
       </CardContent>
     </Card>
