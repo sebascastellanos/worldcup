@@ -4,6 +4,7 @@ import { mapMatch, mapPrediction } from '@/lib/db/mappers'
 import { GroupsAccordion } from '@/components/app/groups-accordion'
 import { RulesModal } from '@/components/app/rules-modal'
 import { ConfettiManager } from '@/components/app/confetti-manager'
+import { UpcomingBanner } from '@/components/app/upcoming-banner'
 
 export default async function PredictionsPage() {
   const supabase = await createClient()
@@ -39,6 +40,8 @@ export default async function PredictionsPage() {
           </span>
         )}
       </div>
+
+      <UpcomingBanner matches={allMatches} predMap={predMap} />
 
       {authUser && (
         <ConfettiManager
