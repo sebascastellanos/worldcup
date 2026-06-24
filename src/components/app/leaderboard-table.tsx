@@ -40,7 +40,7 @@ function predLabel(pred: PredWithMatch): string {
 
 function PointsBadge({ points, status }: { points: number | null; status: string }) {
   if (status !== 'finished') return <span className="text-xs text-muted-foreground">—</span>
-  const color = points === 3 ? 'bg-emerald-100 text-emerald-700' : points === 1 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-600'
+  const color = points === 5 ? 'bg-violet-100 text-violet-700' : points === 1 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-600'
   return <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${color}`}>{points ?? 0} pts</span>
 }
 

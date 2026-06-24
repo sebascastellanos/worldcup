@@ -3,17 +3,17 @@ import { calcularPuntos } from './calculator'
 
 describe('calcularPuntos', () => {
   // Modo exact_score
-  it('retorna 3 para marcador exacto', () => {
-    expect(calcularPuntos({ predType: 'exact_score', predHome: 2, predAway: 1 }, { homeScore: 2, awayScore: 1 })).toBe(3)
+  it('retorna 5 para marcador exacto', () => {
+    expect(calcularPuntos({ predType: 'exact_score', predHome: 2, predAway: 1 }, { homeScore: 2, awayScore: 1 })).toBe(5)
   })
-  it('retorna 1 para ganador correcto con marcador incorrecto (exact_score)', () => {
-    expect(calcularPuntos({ predType: 'exact_score', predHome: 3, predAway: 0 }, { homeScore: 2, awayScore: 1 })).toBe(1)
+  it('retorna 0 para ganador correcto con marcador incorrecto (exact_score)', () => {
+    expect(calcularPuntos({ predType: 'exact_score', predHome: 3, predAway: 0 }, { homeScore: 2, awayScore: 1 })).toBe(0)
   })
   it('retorna 0 para marcador y ganador incorrectos (exact_score)', () => {
     expect(calcularPuntos({ predType: 'exact_score', predHome: 0, predAway: 1 }, { homeScore: 2, awayScore: 1 })).toBe(0)
   })
-  it('retorna 1 para empate correcto (exact_score)', () => {
-    expect(calcularPuntos({ predType: 'exact_score', predHome: 1, predAway: 1 }, { homeScore: 0, awayScore: 0 })).toBe(1)
+  it('retorna 0 para empate incorrecto (exact_score)', () => {
+    expect(calcularPuntos({ predType: 'exact_score', predHome: 1, predAway: 1 }, { homeScore: 0, awayScore: 0 })).toBe(0)
   })
 
   // Modo 1X2

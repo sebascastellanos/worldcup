@@ -17,12 +17,12 @@ export function ScoreBadge({ points, status }: ScoreBadgeProps) {
     <Badge
       className={cn(
         'text-xs font-mono font-bold',
-        points === 3 && 'bg-primary text-primary-foreground',
+        points === 5 && 'bg-violet-600 text-white',
         points === 1 && 'bg-secondary text-secondary-foreground',
         points === 0 && 'bg-muted text-muted-foreground',
       )}
     >
-      {points === 3 ? '+3 pts' : points === 1 ? '+1 pt' : '0 pts'}
+      {points === 5 ? '+5 pts' : points === 1 ? '+1 pt' : '0 pts'}
     </Badge>
   )
 }
