@@ -7,7 +7,7 @@ export function calcularPuntos(pred: Pred, result: Result): number {
   const realOutcome = Math.sign(result.homeScore - result.awayScore)
 
   if (pred.predType === 'exact_score') {
-    if (pred.predHome === result.homeScore && pred.predAway === result.awayScore) return 3
+    if (pred.predHome === result.homeScore && pred.predAway === result.awayScore) return 5
     return 0
   }
 

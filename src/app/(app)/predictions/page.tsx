@@ -5,6 +5,7 @@ import { GroupsAccordion } from '@/components/app/groups-accordion'
 import { RulesModal } from '@/components/app/rules-modal'
 import { ConfettiManager } from '@/components/app/confetti-manager'
 import { UpcomingBanner } from '@/components/app/upcoming-banner'
+import { PatchNote } from '@/components/app/patch-note'
 
 export default async function PredictionsPage() {
   const supabase = await createClient()
@@ -41,6 +42,7 @@ export default async function PredictionsPage() {
         )}
       </div>
 
+      <PatchNote />
       <UpcomingBanner matches={allMatches} predMap={predMap} />
 
       {authUser && (
