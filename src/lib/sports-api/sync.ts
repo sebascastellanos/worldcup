@@ -101,11 +101,12 @@ export async function syncResults(source: 'cron' | 'admin' = 'cron'): Promise<{ 
 
           const statusChanged = existing.status !== status
           const scoreChanged = existing.homeScore !== effectiveHome || existing.awayScore !== effectiveAway
-          if (statusChanged || scoreChanged) {
+          const teamsChanged = existing.homeTeam !== apiMatch.homeTeam.name || existing.awayTeam !== apiMatch.awayTeam.name
+          if (statusChanged || scoreChanged || teamsChanged) {
             toUpdate.push({
               id: existing.id,
               externalId,
-              changes: { status, home_score: effectiveHome, away_score: effectiveAway, updated_at: new Date().toISOString() },
+              changes: { status, home_team: apiMatch.homeTeam.name, away_team: apiMatch.awayTeam.name, home_flag: apiMatch.homeTeam.crest, away_flag: apiMatch.awayTeam.crest, home_score: effectiveHome, away_score: effectiveAway, updated_at: new Date().toISOString() },
               lockPreds: status === 'live' || status === 'finished',
               recalculate: status === 'finished' && effectiveHome !== null && effectiveAway !== null
                 ? { homeScore: effectiveHome!, awayScore: effectiveAway! }
