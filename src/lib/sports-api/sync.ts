@@ -85,10 +85,10 @@ export async function syncResults(source: 'cron' | 'admin' = 'cron'): Promise<{ 
         if (!existing) {
           toInsert.push({
             external_id: externalId,
-            home_team: apiMatch.homeTeam.name,
-            away_team: apiMatch.awayTeam.name,
-            home_flag: apiMatch.homeTeam.crest,
-            away_flag: apiMatch.awayTeam.crest,
+            home_team: apiMatch.homeTeam.name || 'Por definir',
+            away_team: apiMatch.awayTeam.name || 'Por definir',
+            home_flag: apiMatch.homeTeam.crest || null,
+            away_flag: apiMatch.awayTeam.crest || null,
             match_date: new Date(apiMatch.utcDate).toISOString(),
             stage, status,
             home_score: homeScore,
@@ -101,12 +101,14 @@ export async function syncResults(source: 'cron' | 'admin' = 'cron'): Promise<{ 
 
           const statusChanged = existing.status !== status
           const scoreChanged = existing.homeScore !== effectiveHome || existing.awayScore !== effectiveAway
-          const teamsChanged = existing.homeTeam !== apiMatch.homeTeam.name || existing.awayTeam !== apiMatch.awayTeam.name
+          const effectiveHomeName = apiMatch.homeTeam.name || existing.homeTeam
+          const effectiveAwayName = apiMatch.awayTeam.name || existing.awayTeam
+          const teamsChanged = existing.homeTeam !== effectiveHomeName || existing.awayTeam !== effectiveAwayName
           if (statusChanged || scoreChanged || teamsChanged) {
             toUpdate.push({
               id: existing.id,
               externalId,
-              changes: { status, home_team: apiMatch.homeTeam.name, away_team: apiMatch.awayTeam.name, home_flag: apiMatch.homeTeam.crest, away_flag: apiMatch.awayTeam.crest, home_score: effectiveHome, away_score: effectiveAway, updated_at: new Date().toISOString() },
+              changes: { status, home_team: effectiveHomeName, away_team: effectiveAwayName, home_flag: apiMatch.homeTeam.crest || existing.homeFlag, away_flag: apiMatch.awayTeam.crest || existing.awayFlag, home_score: effectiveHome, away_score: effectiveAway, updated_at: new Date().toISOString() },
               lockPreds: status === 'live' || status === 'finished',
               recalculate: status === 'finished' && effectiveHome !== null && effectiveAway !== null
                 ? { homeScore: effectiveHome!, awayScore: effectiveAway! }
@@ -121,8 +123,12 @@ export async function syncResults(source: 'cron' | 'admin' = 'cron'): Promise<{ 
 
     // Bulk insert de partidos nuevos (1 query)
     if (toInsert.length > 0) {
-      await supabaseAdmin.from('matches').insert(toInsert)
-      synced += toInsert.length
+      const { error: insertError } = await supabaseAdmin.from('matches').insert(toInsert)
+      if (insertError) {
+        errors.push(`Error insertando partidos nuevos: ${insertError.message}`)
+      } else {
+        synced += toInsert.length
+      }
     }
 
     // Updates solo de los partidos que cambiaron (normalmente 0–3 por sync)

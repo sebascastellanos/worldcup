@@ -16,7 +16,7 @@ const KNOCKOUT_TABS = [
   {
     key: 'dieciseisavos',
     label: 'Dieciseisavos',
-    apiStage: 'ROUND_OF_32',
+    apiStages: ['LAST_32', 'ROUND_OF_32'],
     placeholders: Array.from({ length: 16 }, (_, i) => ({
       home: `Clasificado ${i * 2 + 1}`,
       away: `Clasificado ${i * 2 + 2}`,
@@ -25,7 +25,7 @@ const KNOCKOUT_TABS = [
   {
     key: 'octavos',
     label: 'Octavos',
-    apiStage: 'ROUND_OF_16',
+    apiStages: ['LAST_16', 'ROUND_OF_16'],
     placeholders: Array.from({ length: 8 }, (_, i) => ({
       home: `Gan. D16-${i * 2 + 1}`,
       away: `Gan. D16-${i * 2 + 2}`,
@@ -34,7 +34,7 @@ const KNOCKOUT_TABS = [
   {
     key: 'cuartos',
     label: 'Cuartos',
-    apiStage: 'QUARTER_FINALS',
+    apiStages: ['QUARTER_FINALS'],
     placeholders: Array.from({ length: 4 }, (_, i) => ({
       home: `Gan. Oct-${i * 2 + 1}`,
       away: `Gan. Oct-${i * 2 + 2}`,
@@ -43,7 +43,7 @@ const KNOCKOUT_TABS = [
   {
     key: 'semis',
     label: 'Semifinales',
-    apiStage: 'SEMI_FINALS',
+    apiStages: ['SEMI_FINALS'],
     placeholders: [
       { home: 'Gan. Cuartos 1', away: 'Gan. Cuartos 2' },
       { home: 'Gan. Cuartos 3', away: 'Gan. Cuartos 4' },
@@ -52,7 +52,7 @@ const KNOCKOUT_TABS = [
   {
     key: 'final',
     label: 'Final',
-    apiStage: 'FINAL',
+    apiStages: ['FINAL'],
     placeholders: [
       { home: 'Gan. Semifinal 1', away: 'Gan. Semifinal 2' },
     ],
@@ -80,7 +80,7 @@ export function KnockoutTabs({ grouped, predMap, onPredChange }: KnockoutTabsPro
   const [activeTab, setActiveTab] = useState('dieciseisavos')
 
   const current = KNOCKOUT_TABS.find(t => t.key === activeTab)!
-  const realMatches = grouped[current.apiStage] ?? []
+  const realMatches = current.apiStages.flatMap(s => grouped[s] ?? [])
   const hasReal = realMatches.length > 0
 
   // Also handle THIRD_PLACE in the Final tab
@@ -91,7 +91,7 @@ export function KnockoutTabs({ grouped, predMap, onPredChange }: KnockoutTabsPro
       {/* Inner tabs */}
       <div className="flex gap-1 flex-wrap">
         {KNOCKOUT_TABS.map(tab => {
-          const hasData = (grouped[tab.apiStage]?.length ?? 0) > 0
+          const hasData = tab.apiStages.some(s => (grouped[s]?.length ?? 0) > 0)
           return (
             <button
               key={tab.key}
