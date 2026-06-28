@@ -73,7 +73,7 @@ export async function syncResults(source: 'cron' | 'admin' = 'cron'): Promise<{ 
     )
 
     const toInsert: object[] = []
-    const toUpdate: { id: string; externalId: string; changes: object; lockPreds: boolean; recalculate: { homeScore: number; awayScore: number } | null }[] = []
+    const toUpdate: { id: string; externalId: string; changes: object; lockPreds: boolean; recalculate: { homeScore: number; awayScore: number; winner?: string | null } | null }[] = []
 
     for (const apiMatch of apiMatches) {
       try {
