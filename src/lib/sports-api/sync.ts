@@ -14,6 +14,7 @@ interface ApiMatch {
   score: {
     winner: string | null
     fullTime: { home: number | null; away: number | null }
+    extraTime: { home: number | null; away: number | null } | null
   }
 }
 
@@ -83,7 +84,12 @@ export async function syncResults(source: 'cron' | 'admin' = 'cron'): Promise<{ 
         const stage = resolveStage(apiMatch)
         const existing = existingMap.get(externalId)
 
-        const winner = apiMatch.score.winner ?? null
+        // winner = result at 120min for knockout (ignores penalties by design)
+        // null for group stage or knockout decided in 90min (calculator uses fullTime scores)
+        const et = apiMatch.score.extraTime
+        const winner = (et && et.home !== null && et.away !== null)
+          ? (et.home > et.away ? 'HOME_TEAM' : et.away > et.home ? 'AWAY_TEAM' : 'DRAW')
+          : null
 
         if (!existing) {
           toInsert.push({

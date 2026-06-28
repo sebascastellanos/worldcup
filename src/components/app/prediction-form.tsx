@@ -108,7 +108,7 @@ export function PredictionForm({ matchId, homeTeam, awayTeam, currentPred, locke
     <div className="space-y-2">
       {/* 1X2 buttons */}
       <div className="flex gap-1.5">
-        {OUTCOME_BUTTONS.filter(b => !isKnockout || b.type !== 'draw').map(({ type, label, gradient, activeBg, hoverBg }) => {
+        {OUTCOME_BUTTONS.map(({ type, label, gradient, activeBg, hoverBg }) => {
           const isActive = selected === type && !exactMode
           const isHoveringActive = isActive && hoveredType === type
           return (

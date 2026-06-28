@@ -31,17 +31,20 @@ describe('calcularPuntos — 1X2 fase de grupos (sin winner)', () => {
   })
 })
 
-describe('calcularPuntos — 1X2 eliminatorias (con winner)', () => {
-  it('retorna 1 para home_win correcto via penales (1-1 FT, gana local)', () => {
+describe('calcularPuntos — 1X2 eliminatorias con tiempo extra (winner = resultado al 120\')', () => {
+  it('home_win correcto: local anota en ET (1-1 FT → 2-1 ET)', () => {
     expect(calcularPuntos({ predType: 'home_win' }, { homeScore: 1, awayScore: 1, winner: 'HOME_TEAM' })).toBe(1)
   })
-  it('retorna 0 para home_win incorrecto via penales', () => {
-    expect(calcularPuntos({ predType: 'home_win' }, { homeScore: 1, awayScore: 1, winner: 'AWAY_TEAM' })).toBe(0)
+  it('away_win incorrecto: local gana en ET', () => {
+    expect(calcularPuntos({ predType: 'away_win' }, { homeScore: 1, awayScore: 1, winner: 'HOME_TEAM' })).toBe(0)
   })
-  it('retorna 1 para away_win correcto via tiempo extra', () => {
-    expect(calcularPuntos({ predType: 'away_win' }, { homeScore: 1, awayScore: 2, winner: 'AWAY_TEAM' })).toBe(1)
+  it('draw correcto: empate en 120\' (van a penales, pero cuenta como empate)', () => {
+    expect(calcularPuntos({ predType: 'draw' }, { homeScore: 1, awayScore: 1, winner: 'DRAW' })).toBe(1)
   })
-  it('retorna 0 para draw en eliminatorias siempre', () => {
-    expect(calcularPuntos({ predType: 'draw' }, { homeScore: 1, awayScore: 1, winner: 'HOME_TEAM' })).toBe(0)
+  it('home_win incorrecto: empate en 120\' (penales no cuentan)', () => {
+    expect(calcularPuntos({ predType: 'home_win' }, { homeScore: 1, awayScore: 1, winner: 'DRAW' })).toBe(0)
+  })
+  it('away_win correcto via ET', () => {
+    expect(calcularPuntos({ predType: 'away_win' }, { homeScore: 0, awayScore: 0, winner: 'AWAY_TEAM' })).toBe(1)
   })
 })
