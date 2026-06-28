@@ -105,7 +105,7 @@ function GroupCard({
 }
 
 export function GroupsAccordion({ matches, predMap: initialPredMap }: GroupsAccordionProps) {
-  const [activeTab, setActiveTab] = useState<Tab>('groups')
+  const [activeTab, setActiveTab] = useState<Tab>('knockout')
   const [openStage, setOpenStage] = useState<string | null>(null)
   const [predMap, setPredMap] = useState<PredMap>(initialPredMap)
   const [highlightedMatchId, setHighlightedMatchId] = useState<string | null>(null)
