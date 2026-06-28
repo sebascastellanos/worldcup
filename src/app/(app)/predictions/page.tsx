@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import { mapMatch, mapPrediction } from '@/lib/db/mappers'
 import { GroupsAccordion } from '@/components/app/groups-accordion'
 import { RulesModal } from '@/components/app/rules-modal'
+import { KnockoutRulesModal } from '@/components/app/knockout-rules-modal'
 import { ConfettiManager } from '@/components/app/confetti-manager'
 import { UpcomingBanner } from '@/components/app/upcoming-banner'
 import { PatchNote } from '@/components/app/patch-note'
@@ -42,6 +43,7 @@ export default async function PredictionsPage() {
         )}
       </div>
 
+      <KnockoutRulesModal />
       <PatchNote />
       <UpcomingBanner matches={allMatches} predMap={predMap} />
 
