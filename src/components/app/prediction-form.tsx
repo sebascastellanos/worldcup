@@ -12,6 +12,7 @@ interface PredictionFormProps {
   awayTeam: string
   currentPred?: { predType: PredType; predHome?: number | null; predAway?: number | null } | null
   locked: boolean
+  isKnockout?: boolean
   onPredChange?: (matchId: string, pred: Prediction | null) => void
 }
 
@@ -39,7 +40,7 @@ const OUTCOME_BUTTONS: { type: Exclude<PredType, 'exact_score'>; label: string; 
   },
 ]
 
-export function PredictionForm({ matchId, homeTeam, awayTeam, currentPred, locked, onPredChange }: PredictionFormProps) {
+export function PredictionForm({ matchId, homeTeam, awayTeam, currentPred, locked, isKnockout, onPredChange }: PredictionFormProps) {
   const [selected, setSelected] = useState<PredType | null>(currentPred?.predType ?? null)
   const [exactMode, setExactMode] = useState(false)
   const [predHome, setPredHome] = useState(currentPred?.predHome?.toString() ?? '')
@@ -107,7 +108,7 @@ export function PredictionForm({ matchId, homeTeam, awayTeam, currentPred, locke
     <div className="space-y-2">
       {/* 1X2 buttons */}
       <div className="flex gap-1.5">
-        {OUTCOME_BUTTONS.map(({ type, label, gradient, activeBg, hoverBg }) => {
+        {OUTCOME_BUTTONS.filter(b => !isKnockout || b.type !== 'draw').map(({ type, label, gradient, activeBg, hoverBg }) => {
           const isActive = selected === type && !exactMode
           const isHoveringActive = isActive && hoveredType === type
           return (
@@ -161,7 +162,7 @@ export function PredictionForm({ matchId, homeTeam, awayTeam, currentPred, locke
           onClick={() => setExactMode(true)}
           className="text-xs text-muted-foreground hover:text-primary underline underline-offset-2 transition-colors"
         >
-          Acertar marcador exacto (3 pts)
+          {isKnockout ? 'Acertar marcador al 90\' (5 pts)' : 'Acertar marcador exacto (5 pts)'}
         </button>
       ) : (
         <form onSubmit={handleExactSubmit} className="flex items-center gap-2">

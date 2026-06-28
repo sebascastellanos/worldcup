@@ -4,7 +4,7 @@ import { calcularPuntos } from './calculator'
 
 export async function recalcularPuntosPartido(
   matchId: string,
-  result: { homeScore: number; awayScore: number }
+  result: { homeScore: number; awayScore: number; winner?: string | null }
 ): Promise<number> {
   const { data: rawPreds } = await supabaseAdmin
     .from('predictions')

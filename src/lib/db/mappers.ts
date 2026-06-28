@@ -13,6 +13,7 @@ export function mapMatch(r: Record<string, any>): Match {
     status: r.status,
     homeScore: r.home_score,
     awayScore: r.away_score,
+    winner: r.winner ?? null,
     updatedAt: new Date(r.updated_at),
   }
 }

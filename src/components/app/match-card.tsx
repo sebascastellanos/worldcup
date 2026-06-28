@@ -117,6 +117,7 @@ export function MatchCard({ match, prediction, onPredChange, highlighted }: Matc
   const cutoff = new Date(new Date(match.matchDate).getTime() - 5 * 60 * 1000)
   const isLocked = match.status !== 'scheduled' || new Date() >= cutoff
   const hasResult = match.status === 'finished' && match.homeScore !== null
+  const isKnockout = !match.stage.startsWith('GROUP_')
   const [showPreds, setShowPreds] = useState(false)
 
   return (
@@ -195,6 +196,7 @@ export function MatchCard({ match, prediction, onPredChange, highlighted }: Matc
             awayTeam={match.awayTeam}
             currentPred={prediction}
             locked={isLocked}
+            isKnockout={isKnockout}
             onPredChange={onPredChange}
           />
         </CardContent>

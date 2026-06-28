@@ -12,6 +12,7 @@ interface ApiMatch {
   group: string | null
   status: string
   score: {
+    winner: string | null
     fullTime: { home: number | null; away: number | null }
   }
 }
@@ -82,6 +83,8 @@ export async function syncResults(source: 'cron' | 'admin' = 'cron'): Promise<{ 
         const stage = resolveStage(apiMatch)
         const existing = existingMap.get(externalId)
 
+        const winner = apiMatch.score.winner ?? null
+
         if (!existing) {
           toInsert.push({
             external_id: externalId,
@@ -90,7 +93,7 @@ export async function syncResults(source: 'cron' | 'admin' = 'cron'): Promise<{ 
             home_flag: apiMatch.homeTeam.crest || null,
             away_flag: apiMatch.awayTeam.crest || null,
             match_date: new Date(apiMatch.utcDate).toISOString(),
-            stage, status,
+            stage, status, winner,
             home_score: homeScore,
             away_score: awayScore,
           })
@@ -108,10 +111,10 @@ export async function syncResults(source: 'cron' | 'admin' = 'cron'): Promise<{ 
             toUpdate.push({
               id: existing.id,
               externalId,
-              changes: { status, home_team: effectiveHomeName, away_team: effectiveAwayName, home_flag: apiMatch.homeTeam.crest || existing.homeFlag, away_flag: apiMatch.awayTeam.crest || existing.awayFlag, home_score: effectiveHome, away_score: effectiveAway, updated_at: new Date().toISOString() },
+              changes: { status, home_team: effectiveHomeName, away_team: effectiveAwayName, home_flag: apiMatch.homeTeam.crest || existing.homeFlag, away_flag: apiMatch.awayTeam.crest || existing.awayFlag, home_score: effectiveHome, away_score: effectiveAway, winner, updated_at: new Date().toISOString() },
               lockPreds: status === 'live' || status === 'finished',
               recalculate: status === 'finished' && effectiveHome !== null && effectiveAway !== null
-                ? { homeScore: effectiveHome!, awayScore: effectiveAway! }
+                ? { homeScore: effectiveHome!, awayScore: effectiveAway!, winner }
                 : null,
             })
           }
