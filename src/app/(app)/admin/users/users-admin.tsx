@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { User } from '@/lib/db/schema'
+import { UsersMetricsModal } from './users-metrics-modal'
 
 function ProgressCircle({ value, total }: { value: number; total: number }) {
   const pct = total > 0 ? Math.round((value / total) * 100) : 0
@@ -55,7 +56,10 @@ export function UsersAdmin({ initialUsers, currentUserId, totalMatches, predCoun
 
   return (
     <div className="p-6 max-w-[800px] mx-auto">
-      <h1 className="text-xl font-bold mb-6">Participantes ({users.length})</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-xl font-bold">Participantes ({users.length})</h1>
+        <UsersMetricsModal />
+      </div>
       <Table>
         <TableHeader>
           <TableRow className="border-border">
