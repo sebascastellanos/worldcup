@@ -13,8 +13,13 @@ interface ApiMatch {
   status: string
   score: {
     winner: string | null
+    duration: string | null
     fullTime: { home: number | null; away: number | null }
+    // regularTime = 90' result (knockout matches only; group stage only has fullTime)
+    // fullTime in football-data.org v4 = cumulative including penalty shootout goals
+    regularTime: { home: number | null; away: number | null } | null
     extraTime: { home: number | null; away: number | null } | null
+    penalties: { home: number | null; away: number | null } | null
   }
 }
 
@@ -79,8 +84,10 @@ export async function syncResults(source: 'cron' | 'admin' = 'cron'): Promise<{ 
       try {
         const externalId = String(apiMatch.id)
         const status = mapStatus(apiMatch.status)
-        const homeScore = apiMatch.score.fullTime.home
-        const awayScore = apiMatch.score.fullTime.away
+        // Use regularTime (90') for scores — fullTime in v4 API includes penalty shootout goals
+        const rt = apiMatch.score.regularTime
+        const homeScore = rt?.home ?? apiMatch.score.fullTime.home
+        const awayScore = rt?.away ?? apiMatch.score.fullTime.away
         const stage = resolveStage(apiMatch)
         const existing = existingMap.get(externalId)
 

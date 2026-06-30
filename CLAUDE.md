@@ -64,10 +64,26 @@ invite_tokens (id uuid PK, token unique, created_by FK, used_by FK, used_at, exp
 
 ## Sistema de puntos
 
+### Fase de grupos
 - Resultado correcto (1X2): **1 punto**
-- Marcador exacto: **3 puntos** (si aciertas el marcador exacto) o **1 punto** (si aciertas el resultado pero no el marcador)
+- Marcador exacto: **5 puntos** (si aciertas el marcador exacto)
+
+### Fase eliminatoria
+- Marcador exacto (5 pts): solo cuenta el resultado a los **90 minutos**
+- Resultado 1X2 (1 pt): cuenta el resultado al **120 minutos**
+  - Si hay ganador en la prórroga → home_win / away_win gana el punto
+  - Si el partido va a penales → solo **draw** gana el punto (penales no cuentan)
+
 - Se recalcula en `recalcularPuntosPartido()` al sincronizar partidos finalizados
 - `users.total_points` se actualiza sumando todos los `predictions.points_earned` del usuario
+
+### Nota sobre la API de football-data.org v4 (knockout)
+Para partidos que van a penales, la API devuelve:
+- `score.regularTime` → goles a los 90' ← **usar esto para home_score / away_score**
+- `score.extraTime` → goles anotados EN la prórroga (no acumulado)
+- `score.penalties` → goles en la tanda de penales
+- `score.fullTime` → **total acumulado** (90' + ET + penales) ← NO usar para scores del partido
+El sync usa `regularTime ?? fullTime` para garantizar compatibilidad con fase de grupos donde `regularTime` no existe.
 
 ## Variables de entorno (.env.local)
 
