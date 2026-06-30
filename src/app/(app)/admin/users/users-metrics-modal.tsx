@@ -117,11 +117,9 @@ export function UsersMetricsModal() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs">
-          <BarChart2 className="w-3.5 h-3.5" />
-          Métricas
-        </Button>
+      <DialogTrigger render={<Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs" />}>
+        <BarChart2 className="w-3.5 h-3.5" />
+        Métricas
       </DialogTrigger>
       <DialogContent className="max-w-2xl w-full">
         <DialogHeader>
