@@ -84,10 +84,26 @@ export async function syncResults(source: 'cron' | 'admin' = 'cron'): Promise<{ 
       try {
         const externalId = String(apiMatch.id)
         const status = mapStatus(apiMatch.status)
-        // Use regularTime (90') for scores — fullTime in v4 API includes penalty shootout goals
+        // Derive 90' score (for exact_score checks):
+        // 1. regularTime if populated (penalty matches)
+        // 2. fullTime minus extraTime goals if ET was played but regularTime is null (API inconsistency)
+        // 3. fullTime alone for normal REGULAR matches
         const rt = apiMatch.score.regularTime
-        const homeScore = rt?.home ?? apiMatch.score.fullTime.home
-        const awayScore = rt?.away ?? apiMatch.score.fullTime.away
+        const et0 = apiMatch.score.extraTime
+        const ft = apiMatch.score.fullTime
+        let homeScore: number | null
+        let awayScore: number | null
+        if (rt?.home != null && rt?.away != null) {
+          homeScore = rt.home
+          awayScore = rt.away
+        } else if (et0?.home != null && et0?.away != null && (et0.home > 0 || et0.away > 0)) {
+          // ET was played (has goals) but regularTime not populated — infer 90' by subtraction
+          homeScore = (ft.home ?? 0) - et0.home
+          awayScore = (ft.away ?? 0) - et0.away
+        } else {
+          homeScore = ft.home
+          awayScore = ft.away
+        }
         const stage = resolveStage(apiMatch)
         const existing = existingMap.get(externalId)
 
