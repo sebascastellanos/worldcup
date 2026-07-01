@@ -159,8 +159,13 @@ export function MatchCard({ match, prediction, onPredChange, highlighted }: Matc
             {hasResult ? (
               <div className="flex flex-col items-center shrink-0 px-3">
                 <div className="font-mono font-black text-xl text-foreground">
-                  {match.homeScore} – {match.awayScore}
+                  {match.homeScoreFinal ?? match.homeScore} – {match.awayScoreFinal ?? match.awayScore}
                 </div>
+                {match.homeScoreFinal != null && (
+                  <span className="text-[9px] text-muted-foreground leading-none mt-0.5">
+                    90&apos;: {match.homeScore}–{match.awayScore}
+                  </span>
+                )}
                 {match.winner === 'DRAW' && (
                   <span className="text-[9px] font-bold text-blue-500 tracking-widest uppercase leading-none mt-0.5">Penales</span>
                 )}

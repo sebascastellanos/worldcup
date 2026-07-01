@@ -104,6 +104,13 @@ export async function syncResults(source: 'cron' | 'admin' = 'cron'): Promise<{ 
           homeScore = ft.home
           awayScore = ft.away
         }
+        // Final score at 120' (only differs from 90' when ET goals were scored)
+        const etGoalsHome = et0?.home ?? 0
+        const etGoalsAway = et0?.away ?? 0
+        const hasEtGoals = (etGoalsHome > 0 || etGoalsAway > 0) && (homeScore !== null && awayScore !== null)
+        const homeScoreFinal = hasEtGoals ? (homeScore! + etGoalsHome) : null
+        const awayScoreFinal = hasEtGoals ? (awayScore! + etGoalsAway) : null
+
         const stage = resolveStage(apiMatch)
         const existing = existingMap.get(externalId)
 
@@ -125,6 +132,8 @@ export async function syncResults(source: 'cron' | 'admin' = 'cron'): Promise<{ 
             stage, status, winner,
             home_score: homeScore,
             away_score: awayScore,
+            home_score_final: homeScoreFinal,
+            away_score_final: awayScoreFinal,
           })
         } else {
           // Preserve existing scores if API returns null — never overwrite a real result with null
@@ -140,7 +149,7 @@ export async function syncResults(source: 'cron' | 'admin' = 'cron'): Promise<{ 
             toUpdate.push({
               id: existing.id,
               externalId,
-              changes: { status, home_team: effectiveHomeName, away_team: effectiveAwayName, home_flag: apiMatch.homeTeam.crest || existing.homeFlag, away_flag: apiMatch.awayTeam.crest || existing.awayFlag, home_score: effectiveHome, away_score: effectiveAway, winner, updated_at: new Date().toISOString() },
+              changes: { status, home_team: effectiveHomeName, away_team: effectiveAwayName, home_flag: apiMatch.homeTeam.crest || existing.homeFlag, away_flag: apiMatch.awayTeam.crest || existing.awayFlag, home_score: effectiveHome, away_score: effectiveAway, home_score_final: homeScoreFinal, away_score_final: awayScoreFinal, winner, updated_at: new Date().toISOString() },
               lockPreds: status === 'live' || status === 'finished',
               recalculate: status === 'finished' && effectiveHome !== null && effectiveAway !== null
                 ? { homeScore: effectiveHome!, awayScore: effectiveAway!, winner }

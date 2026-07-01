@@ -29,6 +29,8 @@ export const matches = pgTable('matches', {
   status: matchStatusEnum('status').default('scheduled').notNull(),
   homeScore: integer('home_score'),
   awayScore: integer('away_score'),
+  homeScoreFinal: integer('home_score_final'),
+  awayScoreFinal: integer('away_score_final'),
   winner: text('winner'),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
