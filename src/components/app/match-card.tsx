@@ -157,8 +157,16 @@ export function MatchCard({ match, prediction, onPredChange, highlighted }: Matc
             </div>
 
             {hasResult ? (
-              <div className="font-mono font-black text-xl text-foreground px-3 shrink-0">
-                {match.homeScore} – {match.awayScore}
+              <div className="flex flex-col items-center shrink-0 px-3">
+                <div className="font-mono font-black text-xl text-foreground">
+                  {match.homeScore} – {match.awayScore}
+                </div>
+                {match.winner === 'DRAW' && (
+                  <span className="text-[9px] font-bold text-blue-500 tracking-widest uppercase leading-none mt-0.5">Penales</span>
+                )}
+                {(match.winner === 'HOME_TEAM' || match.winner === 'AWAY_TEAM') && (
+                  <span className="text-[9px] font-bold text-amber-500 tracking-widest uppercase leading-none mt-0.5">Prórroga</span>
+                )}
               </div>
             ) : (
               <div className="text-muted-foreground text-sm font-semibold px-3 shrink-0">vs</div>
